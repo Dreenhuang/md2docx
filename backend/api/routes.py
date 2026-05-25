@@ -267,9 +267,10 @@ def start_conversion():
 
         _log('INFO', f"启动批量转换: {len(file_list)} 个文件 -> {output_dir}")
         return jsonify({
-            'started': True,
-            'total': len(file_list),
-            'output_dir': output_dir
+            'success': True,
+            'taskId': str(id(_conversion_thread)),
+            'totalFiles': len(file_list),
+            'outputDir': output_dir
         })
 
     except Exception as e:
@@ -287,56 +288,76 @@ def stop_conversion():
     """
     停止当前转换任务
 
-    返回：{stopped: true}
+    返回：{success: true, stopped: true, completedCount: N}
     """
     global _converter_instance
     try:
         if not conversion_state.get('running'):
-            return jsonify({'warning': '当前没有正在运行的转换任务'})
+            return jsonify({'success': True, 'stopped': False, 'warning': '当前没有正在运行的转换任务'})
+
+        completed = conversion_state.get('current', 0)
 
         if _converter_instance:
             _converter_instance.stop()
 
         conversion_state['status'] = 'stopping'
         _log('INFO', "用户请求停止转换任务")
-        return jsonify({'stopped': True})
+        return jsonify({
+            'success': True,
+            'stopped': True,
+            'completedCount': completed
+        })
 
     except Exception as e:
         _log('ERROR', f"停止转换失败: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @api_bp.route('/convert/progress', methods=['GET'])
 def get_progress():
     """
-    返回当前转换进度
+    返回当前转换进度（格式与前端 app.js 期望完全对齐）
 
-    返回：{
-        current: int,
-        total: int,
-        percent: float,
-        status: str (idle|running|completed|stopped|error|stopping),
-        running: bool,
-        results: [...]
-    }
+    前端期望字段：
+    - progress: int (0-100)
+    - currentIndex: int (当前处理到第几个，从0开始)
+    - totalCount: int (总文件数)
+    - completedFiles: string[] (已完成文件名列表)
+    - failedFiles: string[]|{name, error}[] (失败文件列表)
+    - logs: {level, message}[] (新增日志条目)
+    - status: str
+    - running: bool
     """
-    response = {
-        'current': conversion_state.get('current', 0),
-        'total': conversion_state.get('total', 0),
-        'percent': conversion_state.get('percent', 0),
+    base_response = {
+        'progress': conversion_state.get('percent', 0),
+        'currentIndex': max(0, conversion_state.get('current', 0) - 1),
+        'totalCount': conversion_state.get('total', 0),
         'status': conversion_state.get('status', 'idle'),
         'running': conversion_state.get('running', False),
+        'completedFiles': [],
+        'failedFiles': [],
+        'logs': []
     }
+
     if conversion_state.get('status') in ('completed', 'stopped'):
-        response['results'] = conversion_state.get('results', [])
-    return jsonify(response)
+        results = conversion_state.get('results', [])
+        for r in results:
+            if r.get('success'):
+                base_response['completedFiles'].append(r.get('name', ''))
+            else:
+                base_response['failedFiles'].append({
+                    'name': r.get('name', ''),
+                    'error': r.get('error', '未知错误')
+                })
+
+    return jsonify(base_response)
 
 
 @api_bp.route('/config', methods=['GET'])
 def get_config():
-    """返回当前配置 JSON"""
+    """返回当前配置 JSON（包装为前端期望格式）"""
     config = ConfigManager.get()
-    return jsonify(config)
+    return jsonify({'success': True, 'config': config})
 
 
 @api_bp.route('/config', methods=['PUT'])
@@ -345,21 +366,21 @@ def update_config():
     更新配置参数
 
     请求体：{任意配置键值对}
-    返回：更新后的完整配置
+    返回：{success: true, config: 更新后的完整配置}
     """
     try:
         data = request.get_json(silent=True) or {}
         if not data:
-            return jsonify({'error': '请求体不能为空'}), 400
+            return jsonify({'success': False, 'error': '请求体不能为空'}), 400
 
         validated = ConfigManager.validate(data)
         updated = ConfigManager.update(validated)
         _log('INFO', f"更新配置: {list(data.keys())}")
-        return jsonify(updated)
+        return jsonify({'success': True, 'config': updated})
 
     except Exception as e:
         _log('ERROR', f"更新配置失败: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 
 @api_bp.route('/config/reset', methods=['POST'])
@@ -367,11 +388,11 @@ def reset_config():
     """
     恢复默认配置
 
-    返回：重置后的默认配置
+    返回：{success: true, defaultConfig: 重置后的默认配置}
     """
     config = ConfigManager.reset()
     _log('INFO', "配置已恢复为默认值")
-    return jsonify(config)
+    return jsonify({'success': True, 'defaultConfig': config})
 
 
 @api_bp.route('/logs', methods=['GET'])
@@ -392,7 +413,7 @@ def get_logs():
     return jsonify({'logs': recent, 'total': len(log_entries)})
 
 
-@api_bp.route('/logs/export', methods=['POST'])
+@api_bp.route('/logs/export', methods=['GET', 'POST'])
 def export_logs():
     """
     导出日志为 TXT 文件
