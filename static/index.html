@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown批量转DOCX工具 V1.0</title>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">跳转到主要内容</a>
+
+<div class="app-layout">
+
+    <!-- ==================== HEADER ==================== -->
+    <header class="app-header">
+        <div class="app-logo">
+            <div class="app-logo-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            </div>
+            <div class="app-title-group">
+                <span class="app-title-text">Markdown 批量转 DOCX 工具</span>
+                <span class="app-subtitle">V1.0 — 标准化合规文档生成</span>
+            </div>
+        </div>
+        <div class="app-header-actions">
+            <button class="btn btn--ghost btn--sm btn--icon" title="设置" aria-label="应用设置">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- ==================== LEFT PANEL: 配置与控制 ==================== -->
+    <div class="split-left">
+
+        <!-- Path Configuration -->
+        <section class="panel" aria-labelledby="panel-path-title">
+            <div class="panel-header">
+                <div class="panel-header-left">
+                    <div class="panel-icon panel-icon--path"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+                    <h2 class="panel-title" id="panel-path-title">路径配置</h2>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="form-row" style="margin-bottom:var(--space-2);">
+                    <label class="form-label" for="inputPath">输入路径</label>
+                    <input type="text" class="input" id="inputPath" placeholder="选择 .md 文件或文件夹..." aria-describedby="inputPath-hint">
+                    <button class="btn btn--secondary btn--sm" id="browseInputBtn" aria-label="浏览选择输入路径"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> 浏览</button>
+                    <button class="btn btn--ghost btn--sm" id="clearInputBtn" aria-label="清空输入路径"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> 清空</button>
+                </div>
+                <div class="form-row" style="margin-bottom:var(--space-2);">
+                    <label class="form-label" for="outputPath">输出路径</label>
+                    <input type="text" class="input" id="outputPath" placeholder="选择输出文件夹..." aria-describedby="outputPath-hint">
+                    <button class="btn btn--secondary btn--sm" id="browseOutputBtn" aria-label="浏览选择输出路径"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> 浏览</button>
+                    <button class="btn btn--ghost btn--sm" id="openOutputBtn" aria-label="打开输出文件夹"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> 打开</button>
+                </div>
+                <label class="checkbox"><input type="checkbox" id="sameDir" checked> 输出至原文件同目录</label>
+            </div>
+        </section>
+
+        <!-- Format Configuration (collapsible) -->
+        <section class="panel" id="formatPanel" aria-labelledby="panel-format-title">
+            <div class="panel-header">
+                <div class="panel-header-left">
+                    <button class="collapse-trigger" id="formatToggleBtn" aria-expanded="true" aria-controls="formatBody">
+                        <div class="panel-icon panel-icon--format"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+                        <h2 class="panel-title" id="panel-format-title">格式配置</h2>
+                        <svg class="collapse-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="panel-body collapsible-body" id="formatBody">
+                <div class="form-grid">
+                    <div class="form-field"><label class="form-label" for="paperSize">纸张规格</label><select class="input" id="paperSize"><option>A4</option><option>Letter</option><option>A3</option></select></div>
+                    <div class="form-field"><label class="form-label" for="orientation">方向</label><select class="input input--short" id="orientation"><option>纵向</option><option>横向</option></select></div>
+                    <div class="form-field"><label class="form-label" for="marginLeft">左边距(mm)</label><input type="number" class="input input--short" id="marginLeft" value="20"></div>
+                    <div class="form-field"><label class="form-label" for="marginRight">右边距(mm)</label><input type="number" class="input input--short" id="marginRight" value="20"></div>
+                    <div class="form-field"><label class="form-label" for="marginTop">上边距(mm)</label><input type="number" class="input input--short" id="marginTop" value="16"></div>
+                    <div class="form-field"><label class="form-label" for="marginBottom">下边距(mm)</label><input type="number" class="input input--short" id="marginBottom" value="16"></div>
+                    <div class="form-field"><label class="form-label" for="fontFamily">正文字体</label><select class="input input--medium" id="fontFamily"><option>微软雅黑</option><option>宋体</option><option>黑体</option></select></div>
+                    <div class="form-field"><label class="form-label" for="fontSize">正文字号</label><select class="input input--short" id="fontSize"><option>小四(12pt)</option><option>五号(10.5pt)</option></select></div>
+                    <div class="form-field"><label class="form-label" for="lineSpacing">行距(磅)</label><input type="number" class="input input--short" id="lineSpacing" value="16"></div>
+                    <div class="form-field"><label class="form-label" for="firstIndent">首行缩进</label><select class="input input--short" id="firstIndent"><option>2字符</option><option>4字符</option></select></div>
+                    <div class="form-field"><label class="checkbox" style="margin-top:20px;"><input type="checkbox" id="enableHeader" checked> 启用页眉</label></div>
+                    <div class="form-field"><label class="checkbox" style="margin-top:20px;"><input type="checkbox" id="enableFooter" checked> 启用页脚</label></div>
+                </div>
+                <div class="format-actions">
+                    <button class="btn btn--secondary btn--sm" id="restoreDefaultsBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg> 恢复默认</button>
+                    <button class="btn btn--primary btn--sm" id="saveTemplateBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> 保存模板</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Action Bar (sticks to bottom of left panel) -->
+        <div class="action-bar-wrapper">
+            <section class="panel" aria-label="操作按钮区">
+                <div class="panel-body" style="padding:var(--space-3);">
+                    <div class="action-bar" style="flex-direction:column;align-items:stretch;">
+                        <div class="action-group" style="justify-content:stretch;">
+                            <button class="btn btn--secondary" id="addFilesBtn" aria-label="添加单个文件"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="12" y1="9" x2="12.01" y2="9"/></svg> 添加文件</button>
+                            <button class="btn btn--secondary" id="addFolderBtn" aria-label="添加整个文件夹"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg> 添加文件夹</button>
+                            <button class="btn btn--danger" id="clearFileListBtn" aria-label="清空文件列表"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> 清空列表</button>
+                        </div>
+                        <div class="action-group" style="margin-top:var(--space-2);">
+                            <button class="btn btn--primary btn--lg" id="startBtn" aria-label="开始批量转换所有文件" style="flex:1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg> 开始批量转换</button>
+                            <button class="btn btn--secondary" id="stopBtn" disabled aria-label="停止当前转换任务"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/></svg> 停止</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </div>
+
+    <!-- ==================== RIGHT PANEL: 结果与日志 ==================== -->
+    <div class="split-right">
+
+        <!-- File List (flexible, fills remaining space) -->
+        <section class="panel" id="panel-fileList" aria-labelledby="panel-list-title">
+            <div class="panel-header">
+                <div class="panel-header-left">
+                    <div class="panel-icon panel-icon--list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+                    <h2 class="panel-title" id="panel-list-title">文件列表</h2>
+                    <span class="file-count-badge" id="fileCountBadge">(共 0 个文件)</span>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="table-wrapper">
+                    <table class="table" role="grid" aria-label="待转换文件列表">
+                        <thead><tr><th scope="col" class="col-name">文件名</th><th scope="col" class="col-path">路径</th><th scope="col" class="col-status">状态</th></tr></thead>
+                        <tbody id="fileTableBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-empty" id="tableEmptyState" style="display:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <p>暂无文件，请点击左侧「添加文件」或「添加文件夹」</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress & Log (fixed height at bottom) -->
+        <section class="panel" aria-labelledby="panel-progress-title">
+            <div class="panel-header">
+                <div class="panel-header-left">
+                    <div class="panel-icon panel-icon--progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+                    <h2 class="panel-title" id="panel-progress-title">进度与日志</h2>
+                </div>
+            </div>
+            <div class="panel-body" style="padding:var(--space-3);">
+                <div class="progress-section">
+                    <div class="progress-track">
+                        <div class="progress-bar-container" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="转换进度 0%"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+                        <span class="progress-label" id="progressText">0% (0/0)</span>
+                    </div>
+                </div>
+                <div class="log-console" id="logConsole" role="log" aria-live="polite" aria-label="转换日志">
+                    <div class="log-entry"><span class="log-time">[系统就绪]</span><span class="log-msg-info">等待添加 Markdown 文件...</span></div>
+                </div>
+                <div style="display:flex;gap:var(--space-2);margin-top:var(--space-2);">
+                    <button class="btn btn--secondary btn--sm" id="clearLogBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> 清空日志</button>
+                    <button class="btn btn--secondary btn--sm" id="exportLogBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 导出日志</button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+</div>
+
+<!-- 隐藏的文件选择器（用于真实文件/文件夹选择） -->
+<input type="file" id="fileInput" multiple accept=".md,.markdown,.mdown,.mkd" style="display:none;">
+<input type="file" id="folderInput" webkitdirectory directory style="display:none;">
+
+<!-- ==================== CONFIRM DIALOG ==================== -->
+<div class="dialog-backdrop" id="confirmDialog" role="dialog" aria-modal="true" aria-labelledby="confirmDialogTitle">
+    <div class="dialog">
+        <div class="dialog-icon-wrap dialog-icon-wrap--warn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <h3 class="dialog-title" id="confirmDialogTitle">操作确认</h3>
+        <p class="dialog-body" id="confirmDialogMsg">确认要执行此操作吗？</p>
+        <div class="dialog-actions">
+            <button class="btn btn--secondary" id="confirmDialogCancelBtn">取消</button>
+            <button class="btn btn--primary" id="confirmDialogOkBtn">确认执行</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== COMPLETE DIALOG ==================== -->
+<div class="dialog-backdrop" id="completeDialog" role="dialog" aria-modal="true" aria-labelledby="completeDialogTitle">
+    <div class="dialog">
+        <div class="dialog-icon-wrap dialog-icon-wrap--success">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h3 class="dialog-title" id="completeDialogTitle">转换完成</h3>
+        <p class="dialog-body" id="completeDialogMsg">转换完成！输出文件已保存至指定目录。</p>
+        <div class="dialog-actions">
+            <button class="btn btn--primary" id="openOutputFromCompleteBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                打开输出文件夹
+            </button>
+            <button class="btn btn--secondary" id="closeCompleteBtn">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== ERROR DIALOG ==================== -->
+<div class="dialog-backdrop" id="errorDialog" role="dialog" aria-modal="true" aria-labelledby="errorDialogTitle">
+    <div class="dialog">
+        <div class="dialog-icon-wrap dialog-icon-wrap--error">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </div>
+        <h3 class="dialog-title" id="errorDialogTitle">操作失败</h3>
+        <p class="dialog-body" id="errorDialogMsg">发生了一个错误。</p>
+        <div class="dialog-actions">
+            <button class="btn btn--secondary" id="closeErrorBtn">确定</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
