@@ -132,6 +132,58 @@ def get_files():
     return jsonify({'files': file_list, 'count': len(file_list)})
 
 
+@api_bp.route('/files', methods=['POST'])
+def add_files():
+    """
+    添加文件到待转换列表
+
+    请求体：{"files": [{name, path}, ...]}
+    返回：{success: true, addedCount: N, files: [...]}
+    """
+    global file_list
+    try:
+        data = request.get_json(silent=True) or {}
+        new_files = data.get('files', [])
+
+        if not new_files:
+            return jsonify({'error': '未提供文件列表', 'addedCount': 0}), 400
+
+        existing_names = {f['name'] for f in file_list}
+        added_count = 0
+        added_files = []
+
+        for f in new_files:
+            name = f.get('name', '')
+            path = f.get('path', '')
+            if not name:
+                continue
+            if name in existing_names:
+                continue
+
+            file_obj = {
+                'id': f.get('id', str(len(file_list)) + '_' + name),
+                'name': name,
+                'path': path,
+                'status': 'pending'
+            }
+            file_list.append(file_obj)
+            existing_names.add(name)
+            added_files.append(file_obj)
+            added_count += 1
+
+        _log('INFO', f"添加 {added_count} 个文件到转换列表（当前共 {len(file_list)} 个）")
+        return jsonify({
+            'success': True,
+            'addedCount': added_count,
+            'files': file_list,
+            'count': len(file_list)
+        })
+
+    except Exception as e:
+        _log('ERROR', f"添加文件失败: {str(e)}")
+        return jsonify({'error': str(e), 'addedCount': 0}), 500
+
+
 @api_bp.route('/files', methods=['DELETE'])
 def clear_files():
     """清空待转换文件列表"""
